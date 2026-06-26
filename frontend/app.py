@@ -1,94 +1,105 @@
 import streamlit as st
 import requests
 
+# ---------------------------------
+# Page Configuration
+# ---------------------------------
 st.set_page_config(
     page_title="What's My Level?",
     page_icon="🚀",
     layout="wide"
 )
 
+# ---------------------------------
+# Title
+# ---------------------------------
 st.title("🚀 What's My Level?")
 
-st.success("Analysis Complete!")
+st.markdown("""
+### Know your coding level before the interviewer does.
 
-st.subheader("🎯 Level")
-st.write(result["level"])
-
-st.subheader("⭐ Score")
-st.progress(result["score"] / 100)
-st.write(f"{result['score']}/100")
-
-st.subheader("⏱ Time Complexity")
-st.code(result["time_complexity"])
-
-st.subheader("💾 Space Complexity")
-st.code(result["space_complexity"])
-
-st.subheader("✅ Strengths")
-
-for item in result["strengths"]:
-    st.success(item)
-
-st.subheader("⚠ Weaknesses")
-
-for item in result["weaknesses"]:
-    st.warning(item)
-
-st.subheader("🎤 Interview Question")
-
-st.info(result["interview_question"])
+Paste your code below and receive AI-powered feedback,
+complexity analysis, and interview questions.
+""")
 
 st.divider()
 
+# ---------------------------------
+# Language Selection
+# ---------------------------------
 language = st.selectbox(
     "Programming Language",
     ["Python", "Java", "C++", "JavaScript"]
 )
 
+# ---------------------------------
+# Code Input
+# ---------------------------------
 code = st.text_area(
     "Paste your code here",
     height=300,
-    placeholder="""type your code here..."""
+    placeholder="""type or paste your code here...""",
 )
 
-if st.button("Analyze My Level 🚀"):
+# ---------------------------------
+# Analyze Button
+# ---------------------------------
+if st.button("🚀 Analyze My Level"):
 
     if code.strip() == "":
-        st.warning("Please paste your code.")
+        st.warning("⚠ Please paste your code first.")
+
     else:
 
-        with st.spinner("Analyzing..."):
+        with st.spinner("Analyzing your code..."):
 
-            response = requests.post(
-                "http://127.0.0.1:8000/analyze",
-                json={
-                    "language": language,
-                    "code": code
-                }
-            )
+            try:
 
-        if response.status_code == 200:
+                response = requests.post(
+                    "http://127.0.0.1:8000/analyze",
+                    json={
+                        "language": language,
+                        "code": code
+                    }
+                )
 
-            result = response.json()
+                if response.status_code == 200:
 
-            st.success("Analysis Complete!")
+                    result = response.json()
 
-            st.subheader("Results")
+                    st.success("✅ Analysis Complete!")
 
-            st.write(f"### 🎯 Level: {result['level']}")
+                    st.divider()
 
-            st.write(f"### ⭐ Score: {result['score']}/100")
+                    st.subheader("🎯 Level")
+                    st.write(result["level"])
 
-            st.write(f"Language: {result['language']}")
+                    st.subheader("⭐ Score")
+                    st.progress(result["score"] / 100)
+                    st.write(f"{result['score']}/100")
 
-            st.write(f"Characters in Code: {result['code_length']}")
+                    st.subheader("⏱ Time Complexity")
+                    st.code(result["time_complexity"])
 
-            st.write(f"Time Complexity: {result['time_complexity']}")
+                    st.subheader("💾 Space Complexity")
+                    st.code(result["space_complexity"])
 
-            st.write(f"Space Complexity: {result['space_complexity']}")
+                    st.subheader("✅ Strengths")
 
-            st.info(result["feedback"])
+                    for strength in result["strengths"]:
+                        st.success(strength)
 
-        else:
+                    st.subheader("⚠ Weaknesses")
 
-            st.error("Backend Error")
+                    for weakness in result["weaknesses"]:
+                        st.warning(weakness)
+
+                    st.subheader("🎤 Interview Question")
+
+                    st.info(result["interview_question"])
+
+                else:
+                    st.error("❌ Backend returned an error.")
+
+            except Exception as e:
+                st.error(f"❌ Connection Error: {e}")
