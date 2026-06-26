@@ -37,13 +37,7 @@ language = st.selectbox(
 # -------------------------------
 code = st.text_area(
     "Paste your code here",
-    placeholder="""def twoSum(nums, target):
-    hashmap = {}
-    for i, num in enumerate(nums):
-        diff = target - num
-        if diff in hashmap:
-            return [hashmap[diff], i]
-        hashmap[num] = i""",
+    placeholder="""type or paste your code here...""",
     height=300
 )
 
