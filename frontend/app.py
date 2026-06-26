@@ -9,11 +9,34 @@ st.set_page_config(
 
 st.title("🚀 What's My Level?")
 
-st.markdown("""
-### Know your coding level before the interviewer does.
+st.success("Analysis Complete!")
 
-Paste your code below and receive AI-powered feedback.
-""")
+st.subheader("🎯 Level")
+st.write(result["level"])
+
+st.subheader("⭐ Score")
+st.progress(result["score"] / 100)
+st.write(f"{result['score']}/100")
+
+st.subheader("⏱ Time Complexity")
+st.code(result["time_complexity"])
+
+st.subheader("💾 Space Complexity")
+st.code(result["space_complexity"])
+
+st.subheader("✅ Strengths")
+
+for item in result["strengths"]:
+    st.success(item)
+
+st.subheader("⚠ Weaknesses")
+
+for item in result["weaknesses"]:
+    st.warning(item)
+
+st.subheader("🎤 Interview Question")
+
+st.info(result["interview_question"])
 
 st.divider()
 

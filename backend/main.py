@@ -35,21 +35,9 @@ def health():
 @app.post("/analyze")
 def analyze(request: CodeRequest):
 
-    score = 50 + min(len(request.code) // 10, 50)
+    result = analyze_code(
+        request.language,
+        request.code
+    )
 
-    if score < 65:
-        level = "Beginner"
-    elif score < 85:
-        level = "Intermediate"
-    else:
-        level = "Advanced"
-
-    return {
-        "level": level,
-        "score": score,
-        "language": request.language,
-        "code_length": len(request.code),
-        "time_complexity": "Coming Soon",
-        "space_complexity": "Coming Soon",
-        "feedback": "Gemini AI integration coming soon."
-    }
+    return result
