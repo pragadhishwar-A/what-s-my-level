@@ -1,74 +1,71 @@
 import streamlit as st
-import time
+import requests
 
-# -------------------------------
-# Page Configuration
-# -------------------------------
 st.set_page_config(
     page_title="What's My Level?",
     page_icon="🚀",
     layout="wide"
 )
 
-# -------------------------------
-# Title & Description
-# -------------------------------
 st.title("🚀 What's My Level?")
 
 st.markdown("""
 ### Know your coding level before the interviewer does.
 
-Paste your code below and receive AI-powered feedback,
-complexity analysis, and personalized improvement suggestions.
+Paste your code below and receive AI-powered feedback.
 """)
 
 st.divider()
 
-# -------------------------------
-# Language Selection
-# -------------------------------
 language = st.selectbox(
     "Programming Language",
     ["Python", "Java", "C++", "JavaScript"]
 )
 
-# -------------------------------
-# Code Input
-# -------------------------------
 code = st.text_area(
     "Paste your code here",
-    placeholder="""type or paste your code here...""",
-    height=300
+    height=300,
+    placeholder="""type your code here..."""
 )
 
-# -------------------------------
-# Analyze Button
-# -------------------------------
 if st.button("Analyze My Level 🚀"):
 
     if code.strip() == "":
-        st.warning("⚠ Please paste your code before analyzing.")
+        st.warning("Please paste your code.")
     else:
-        with st.spinner("Analyzing your code..."):
-            time.sleep(2)
 
-        st.success("Analysis Complete! ✅")
+        with st.spinner("Analyzing..."):
 
-        st.subheader("Results")
+            response = requests.post(
+                "http://127.0.0.1:8000/analyze",
+                json={
+                    "language": language,
+                    "code": code
+                }
+            )
 
-        st.write("**Estimated Level:** Intermediate")
-        st.write("**Overall Score:** 82/100")
-        st.write("**Time Complexity:** O(n)")
-        st.write("**Space Complexity:** O(n)")
+        if response.status_code == 200:
 
-        st.subheader("Strengths")
-        st.write("✔ Efficient use of HashMap")
-        st.write("✔ Clean logic")
+            result = response.json()
 
-        st.subheader("Areas to Improve")
-        st.write("• Add comments")
-        st.write("• Improve variable naming")
-        st.write("• Handle more edge cases")
+            st.success("Analysis Complete!")
 
-        st.subheader("Interview Question")
-        st.info("Why is a HashMap solution better than using nested loops?")
+            st.subheader("Results")
+
+            st.write(f"### 🎯 Level: {result['level']}")
+
+            st.write(f"### ⭐ Score: {result['score']}/100")
+
+            st.write(f"Language: {result['language']}")
+
+            st.write(f"Characters in Code: {result['code_length']}")
+
+            st.write(f"Time Complexity: {result['time_complexity']}")
+
+            st.write(f"Space Complexity: {result['space_complexity']}")
+
+            st.info(result["feedback"])
+
+        else:
+
+            st.error("Backend Error")
