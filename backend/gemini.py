@@ -34,6 +34,16 @@ Return exactly this schema:
     "weaknesses":[],
     "interview_question":""
 }}
+Scoring Guidelines:
+
+100 = Production-quality code
+90-99 = Excellent, interview-ready
+80-89 = Good solution with minor improvements
+70-79 = Correct but needs improvement
+60-69 = Basic understanding
+Below 60 = Major issues or incorrect solution
+
+Be strict but fair.
 
 Code:
 

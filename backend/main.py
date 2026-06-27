@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from backend.models import CodeRequest
 from backend.gemini import analyze_code
+from backend.history import save_history
 
 app = FastAPI(
     title="What's My Level? API",
@@ -40,5 +41,5 @@ def analyze(request: CodeRequest):
         request.language,
         request.code
     )
-
+    save_history(result, request.language)
     return result
