@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from backend.models import CodeRequest
+from backend.gemini import analyze_code
 
 app = FastAPI(
     title="What's My Level? API",

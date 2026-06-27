@@ -13,15 +13,17 @@ client = genai.Client(
 def analyze_code(language, code):
 
     prompt = f"""
-You are an expert software engineer.
+You are a senior software engineer.
 
 Analyze the following {language} code.
 
 Return ONLY valid JSON.
 
-Do not explain anything.
+Do not write explanations.
+Do not use markdown.
+Do not wrap the JSON inside ```.
 
-Use this exact schema:
+Return exactly this schema:
 
 {{
     "level":"",
@@ -45,8 +47,22 @@ Code:
 
     text = response.text.strip()
 
-    # Remove markdown if Gemini wraps JSON in ```json
-    if text.startswith("```"):
-        text = text.replace("```json", "").replace("```", "").strip()
+    # Remove markdown fences if present
+    text = text.replace("```json", "").replace("```", "").strip()
 
-    return json.loads(text)
+    try:
+        return json.loads(text)
+
+    except json.JSONDecodeError:
+
+        return {
+            "level": "Unknown",
+            "score": 0,
+            "time_complexity": "Unknown",
+            "space_complexity": "Unknown",
+            "strengths": [],
+            "weaknesses": [
+                "Gemini returned an invalid JSON response."
+            ],
+            "interview_question": "No question generated."
+        }
