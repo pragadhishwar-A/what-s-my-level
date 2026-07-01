@@ -3,8 +3,7 @@ import json
 import logging
 from dotenv import load_dotenv
 from google import genai
-from google.genai import types
-from google.genai.errors import ClientError
+
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -40,10 +39,15 @@ Return exactly this schema:
     "interview_question": ""
 }}
 
-Level must be one of: "Beginner", "Intermediate", "Advanced", "Expert"
+Level must be one of:
+Beginner
+Intermediate
+Advanced
+Expert
 
 Scoring Guidelines:
-100   = Production-quality code
+
+100 = Production-quality code
 90-99 = Excellent, interview-ready
 80-89 = Good solution with minor improvements
 70-79 = Correct but needs improvement
@@ -53,49 +57,100 @@ Below 60 = Major issues or incorrect solution
 Keep every answer concise.
 Provide at most 3 optimization suggestions.
 Each suggestion should be one short sentence.
-Be strict but fair.
 
 Code:
+
 {code}
 """
 
     try:
         response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
-    )
-    except Exception as e:
-        print("Gemini Error:", e)
-        raise e
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
 
-    text = response.text.strip()
+        text = response.text.strip()
+        text = text.replace("```json", "").replace("```", "").strip()
 
-    # Strip markdown fences if Gemini adds them despite instructions
-    text = text.replace("```json", "").replace("```", "").strip()
-
-    try:
         result = json.loads(text)
 
-        # Validate required keys exist
         required_keys = [
-            "level", "score", "time_complexity", "space_complexity",
-            "strengths", "weaknesses", "optimization_suggestions", "interview_question"
+            "level",
+            "score",
+            "time_complexity",
+            "space_complexity",
+            "strengths",
+            "weaknesses",
+            "optimization_suggestions",
+            "interview_question"
         ]
+
         for key in required_keys:
             if key not in result:
-                raise ValueError(f"Missing key in response: {key}")
+                raise ValueError(f"Missing key: {key}")
 
-        # Clamp score to 0-100
         result["score"] = max(0, min(100, int(result["score"])))
 
         return result
 
-    except (json.JSONDecodeError, ValueError) as e:
-        logger.error(f"Gemini response parse failed: {e}\nRaw response: {text}")
-        raise ValueError(f"Failed to parse Gemini response: {e}")
- 
+    except Exception as e:
+        logger.error(f"Gemini Error: {e}")
 
-    except ClientError as e:
-        if "429" in str(e):
-            raise HTTPException(status_code=429, detail="Gemini quota exceeded. Try again later.")
-            raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "level": "Unknown",
+            "score": 0,
+            "time_complexity": "Unknown",
+            "space_complexity": "Unknown",
+            "strengths": [],
+            "weaknesses": [
+                "Failed to analyze code."
+            ],
+            "optimization_suggestions": [],
+            "interview_question": "No interview question generated."
+        }
+
+
+def generate_interview_questions(language: str, code: str):
+
+    prompt = f"""
+You are a Senior Software Engineer conducting a coding interview.
+
+Based on the following {language} code, generate exactly 3 interview questions.
+
+Rules:
+- Keep each question under 25 words.
+- Questions should test understanding, not ask for code.
+- Cover:
+  1. Logic
+  2. Time/Space Complexity
+  3. Optimization or edge cases
+
+Return ONLY valid JSON.
+
+{{
+  "questions": [
+    "",
+    "",
+    ""
+  ]
+}}
+
+Code:
+{code}
+"""
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+
+        text = response.text.strip()
+        text = text.replace("```json", "").replace("```", "").strip()
+
+        return json.loads(text)
+
+    except Exception as e:
+     print("\n========== INTERVIEW ERROR ==========")
+     print(repr(e))
+     print("=====================================\n")
+     raise

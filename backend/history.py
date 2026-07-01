@@ -27,3 +27,5 @@ def save_history(result, language):
 
     with open(FILE_NAME, "w") as f:
         json.dump(history, f, indent=4)
+        
+        
