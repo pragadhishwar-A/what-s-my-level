@@ -1,7 +1,11 @@
-from fastapi import FastAPI
+import logging
+from fastapi import FastAPI, HTTPException
 from backend.models import CodeRequest
 from backend.gemini import analyze_code
 from backend.history import save_history
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="What's My Level? API",
@@ -34,12 +38,23 @@ def health():
     }
 
 
+from fastapi import HTTPException
+
 @app.post("/analyze")
 def analyze(request: CodeRequest):
+    try:
+        result = analyze_code(
+            request.language,
+            request.code
+        )
 
-    result = analyze_code(
-        request.language,
-        request.code
-    )
-    save_history(result, request.language)
-    return result
+        save_history(result, request.language)
+
+        return result
+
+    except Exception as e:
+        print("========== BACKEND ERROR ==========")
+        print(repr(e))
+        print("===================================")
+
+        raise HTTPException(status_code=500, detail=str(e))

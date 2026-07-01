@@ -1,9 +1,8 @@
 import streamlit as st
 import requests
-import time
 import json
 import os
-
+from datetime import datetime
 
 # ---------------------------------
 # Page Configuration
@@ -20,15 +19,16 @@ st.set_page_config(
 with st.sidebar:
     st.title("🚀 What's My Level?")
     st.write("AI-Powered Coding Assessment")
-
     st.divider()
 
     st.markdown("### Version")
     st.write("v1.1.0")
+
     page = st.radio(
-    "Navigation",
-    ["🏠 Home", "📜 Analysis History", "ℹ About"]
-)
+        "Navigation",
+        ["🏠 Home", "📜 Analysis History", "ℹ About"]
+    )
+
     st.markdown("### Tech Stack")
     st.markdown("""
 - Python
@@ -36,36 +36,27 @@ with st.sidebar:
 - FastAPI
 - Gemini 2.5 Flash
 """)
-
     st.divider()
-
     st.info("Paste your code and get AI-powered feedback.")
-    st.divider()
-    st.subheader("📜 Recent Analyses")
 
-if page == "🏠 Home":
-    # Home page code
-    ...
-
-elif page == "📜 Analysis History":
-
+# ---------------------------------
+# Analysis History Page
+# ---------------------------------
+if page == "📜 Analysis History":
     st.title("📜 Analysis History")
 
     if st.button("🗑 Clear History"):
         with open("history.json", "w") as f:
             json.dump([], f)
-
         st.success("History cleared.")
         st.rerun()
 
     if os.path.exists("history.json"):
-
         with open("history.json", "r") as f:
             history = json.load(f)
 
         if len(history) == 0:
             st.info("No analysis history found.")
-
         else:
             for item in reversed(history):
                 with st.expander(
@@ -74,132 +65,147 @@ elif page == "📜 Analysis History":
                     st.write(f"**Level:** {item['level']}")
                     st.write(f"**Time Complexity:** {item['time_complexity']}")
                     st.write(f"**Space Complexity:** {item['space_complexity']}")
-
     else:
         st.info("No history available.")
 
+# ---------------------------------
+# About Page
+# ---------------------------------
 elif page == "ℹ About":
     st.title("ℹ About")
-    st.write("What's My Level? v1.2")
-# ---------------------------------
-# Main Page
-# ---------------------------------
-st.title("🚀 What's My Level?")
+    st.write("What's My Level? v1.1.0")
+    st.markdown("""
+An AI-powered coding assessment platform that analyzes your code,
+estimates your skill level, and provides personalized interview
+feedback and improvement suggestions.
 
-st.markdown("""
+**Built with:**
+- Streamlit (frontend)
+- FastAPI (backend)
+- Gemini 2.5 Flash (AI engine)
+""")
+
+# ---------------------------------
+# Home Page
+# ---------------------------------
+elif page == "🏠 Home":
+    st.title("🚀 What's My Level?")
+    st.markdown("""
 ### Know your coding level before the interviewer does.
 
 Paste your code below and receive AI-powered feedback,
 complexity analysis, and interview questions.
 """)
+    st.divider()
 
-st.divider()
+    # Language Selection
+    language = st.selectbox(
+        "Programming Language",
+        ["Python", "Java", "C++", "JavaScript"]
+    )
 
-# ---------------------------------
-# Language Selection
-# ---------------------------------
-language = st.selectbox(
-    "Programming Language",
-    ["Python", "Java", "C++", "JavaScript"]
-)
+    # Code Input
+    code = st.text_area(
+        "Paste your code here",
+        height=400,
+        placeholder="Paste your solution here...",
+        help="Supports Python, Java, C++, and JavaScript."
+    )
 
-# ---------------------------------
-# Code Input
-# ---------------------------------
-code = st.text_area(
-    "Paste your code here",
-    height=400,
-    placeholder="Paste your solution here...",
-    help="Supports Python, Java, C++, and JavaScript."
-)
+    # Analyze Button
+    analyze = st.button(
+        "🚀 Analyze My Level",
+        disabled=(code.strip() == "")
+    )
 
-# ---------------------------------
-# Analyze Button
-# ---------------------------------
-analyze = st.button(
-    "🚀 Analyze My Level",
-    disabled=(code.strip() == "")
-)
-
-if analyze:
-
-    if code.strip() == "":
-        st.warning("⚠ Please paste your code.")
-
-    else:
-
-       with st.spinner("🤖 AI is analyzing your code..."):
-        st.toast("Sending code to Gemini...", icon="🚀")
-        if st.button("🗑 reset"):
-            st.rerun()
-    try:
+    if analyze:
+        with st.spinner("🤖 AI is analyzing your code..."):
+            st.toast("Sending code to Gemini...", icon="🚀")
+            try:
                 response = requests.post(
                     "http://127.0.0.1:8000/analyze",
                     json={
                         "language": language,
                         "code": code
                     },
-                    timeout=30
+                    timeout=60
                 )
 
                 if response.status_code == 200:
-
                     result = response.json()
-                    
+
                     st.balloons()
                     st.toast("Analysis Complete!", icon="✅")
-
                     st.success("✅ Analysis Complete!")
 
+                    # Level + Score
                     col1, col2 = st.columns(2)
+                    level = result["level"].lower()
 
                     with col1:
-                     level = result["level"].lower()
-
-                    if level == "beginner":
-                        st.error("🔴 Beginner") 
-
-                    elif level == "intermediate":
-                        st.warning("🟡 Intermediate")
-
-                    elif level == "advanced":
-                         st.success("🟢 Advanced")
-
-                    else:
-                         st.info(result["level"])
+                        if level == "beginner":
+                            st.error("🔴 Beginner")
+                        elif level == "intermediate":
+                            st.warning("🟡 Intermediate")
+                        elif level == "advanced":
+                            st.success("🟢 Advanced")
+                        else:
+                            st.info(result["level"])
 
                     with col2:
                         st.metric("⭐ Score", f"{result['score']}/100")
 
                     st.progress(result["score"] / 100)
-
                     st.divider()
 
+                    # Complexity
                     col1, col2 = st.columns(2)
-
                     with col1:
                         st.subheader("⏱ Time Complexity")
                         st.code(result["time_complexity"])
-
                     with col2:
                         st.subheader("💾 Space Complexity")
                         st.code(result["space_complexity"])
 
+                    # Strengths & Weaknesses
                     with st.expander("✅ Strengths", expanded=True):
-                        for strength in result["strengths"]:
+                        for strength in result.get("strengths", []):
                             st.success(strength)
 
                     with st.expander("⚠ Weaknesses"):
-                        for weakness in result["weaknesses"]:
+                        for weakness in result.get("weaknesses", []):
                             st.warning(weakness)
 
+                    # Interview Question
                     st.subheader("🎤 Interview Question")
                     st.info(result["interview_question"])
 
-                else:
-                    st.error("❌ Backend returned an error.")
+                    # Optimization Suggestions
+                    st.subheader("🚀 Optimization Suggestions")
+                    for item in result.get("optimization_suggestions", []):
+                        st.success(item)
 
-    except Exception as e:
+                    # Save to history
+                    history_entry = {
+                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                        "language": language,
+                        "level": result["level"],
+                        "score": result["score"],
+                        "time_complexity": result["time_complexity"],
+                        "space_complexity": result["space_complexity"],
+                    }
+                    history = []
+                    if os.path.exists("history.json"):
+                        with open("history.json", "r") as f:
+                            history = json.load(f)
+                    history.append(history_entry)
+                    with open("history.json", "w") as f:
+                        json.dump(history, f, indent=2)
+
+                else:
+                    st.error(f"❌ Backend returned an error: {response.status_code}")
+
+            except Exception as e:
                 st.error(f"❌ Connection Error: {e}")
 
 # ---------------------------------
