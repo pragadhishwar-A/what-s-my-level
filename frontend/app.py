@@ -26,7 +26,12 @@ with st.sidebar:
 
     page = st.radio(
         "Navigation",
-        ["🏠 Home", "📜 Analysis History", "ℹ About"]
+        [
+    "🏠 Home",
+    "📜 Analysis History",
+    "🎤 Interview Coach",
+    "ℹ About"
+]
     )
 
     st.markdown("### Tech Stack")
@@ -44,6 +49,60 @@ with st.sidebar:
 # ---------------------------------
 if page == "📜 Analysis History":
     st.title("📜 Analysis History")
+elif page == "🎤 Interview Coach":
+
+    st.title("🎤 AI Interview Coach")
+
+    language = st.selectbox(
+        "Programming Language",
+        ["Python", "Java", "C++", "JavaScript"],
+        key="interview_language"
+    )
+
+    code = st.text_area(
+        "Paste your code",
+        height=300,
+        key="interview_code"
+    )
+
+    if st.button("🎯 Generate Interview Questions"):
+
+        if not code.strip():
+            st.warning("Please paste your code.")
+        else:
+
+            with st.spinner("Generating interview questions..."):
+
+                try:
+
+                    response = requests.post(
+                        "http://127.0.0.1:8000/interview",
+                        json={
+                            "language": language,
+                            "code": code
+                        }
+                    )
+
+                    if response.status_code == 200:
+
+                        result = response.json()
+
+                        st.success("Questions Generated!")
+
+                        for i, question in enumerate(result["questions"], start=1):
+
+                            st.subheader(f"Question {i}")
+
+                            st.info(question)
+
+                    else:
+
+                     st.error(f"Backend Error: {response.status_code}")
+                     st.code(response.text)
+
+                except Exception as e:
+
+                    st.error(f"Connection Error: {e}")
 
     if st.button("🗑 Clear History"):
         with open("history.json", "w") as f:

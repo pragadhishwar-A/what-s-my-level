@@ -78,5 +78,69 @@
     "score": 95,
     "time_complexity": "O(1)",
     "space_complexity": "O(1)"
+  },
+  {
+    "timestamp": "2026-07-02 01:45:22",
+    "language": "Python",
+    "level": "Beginner",
+    "score": 95,
+    "time_complexity": "O(1)",
+    "space_complexity": "O(1)"
+  },
+  {
+    "timestamp": "2026-07-02 01:45",
+    "language": "Python",
+    "level": "Beginner",
+    "score": 95,
+    "time_complexity": "O(1)",
+    "space_complexity": "O(1)"
+  },
+  {
+    "timestamp": "2026-07-02 01:57:48",
+    "language": "Python",
+    "level": "Beginner",
+    "score": 100,
+    "time_complexity": "O(1)",
+    "space_complexity": "O(1)"
+  },
+  {
+    "timestamp": "2026-07-02 01:57",
+    "language": "Python",
+    "level": "Beginner",
+    "score": 100,
+    "time_complexity": "O(1)",
+    "space_complexity": "O(1)"
+  },
+  {
+    "timestamp": "2026-07-02 02:03:58",
+    "language": "Python",
+    "level": "Unknown",
+    "score": 0,
+    "time_complexity": "Unknown",
+    "space_complexity": "Unknown"
+  },
+  {
+    "timestamp": "2026-07-02 02:03",
+    "language": "Python",
+    "level": "Unknown",
+    "score": 0,
+    "time_complexity": "Unknown",
+    "space_complexity": "Unknown"
+  },
+  {
+    "timestamp": "2026-07-02 02:06:08",
+    "language": "Python",
+    "level": "Beginner",
+    "score": 100,
+    "time_complexity": "O(1)",
+    "space_complexity": "O(1)"
+  },
+  {
+    "timestamp": "2026-07-02 02:06",
+    "language": "Python",
+    "level": "Beginner",
+    "score": 100,
+    "time_complexity": "O(1)",
+    "space_complexity": "O(1)"
   }
 ]

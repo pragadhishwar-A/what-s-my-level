@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from backend.models import CodeRequest
 from backend.gemini import analyze_code
 from backend.history import save_history
-
+from backend.gemini import analyze_code, generate_interview_questions
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -58,3 +58,9 @@ def analyze(request: CodeRequest):
         print("===================================")
 
         raise HTTPException(status_code=500, detail=str(e))
+@app.post("/interview")
+def interview(request: CodeRequest):
+    return generate_interview_questions(
+        request.language,
+        request.code
+    )
