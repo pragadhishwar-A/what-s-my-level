@@ -3,7 +3,7 @@ import requests
 import json
 import os
 from datetime import datetime
-
+APP_VERSION = "v1.4.0"
 # ---------------------------------
 # Page Configuration
 # ---------------------------------
@@ -22,7 +22,7 @@ with st.sidebar:
     st.divider()
 
     st.markdown("### Version")
-    st.write("v1.1.0")
+    st.write(APP_VERSION)
 
     page = st.radio(
         "Navigation",
@@ -76,33 +76,111 @@ elif page == "🎤 Interview Coach":
                 try:
 
                     response = requests.post(
-                        "http://127.0.0.1:8000/interview",
-                        json={
-                            "language": language,
-                            "code": code
-                        }
-                    )
+                    "http://127.0.0.1:8000/interview",
+                    json={
+                        "language": language,
+                        "code": code
+                    }
+                )
 
                     if response.status_code == 200:
 
-                        result = response.json()
+                        st.session_state["questions"] = response.json()["questions"]
 
                         st.success("Questions Generated!")
 
-                        for i, question in enumerate(result["questions"], start=1):
-
-                            st.subheader(f"Question {i}")
-
-                            st.info(question)
-
                     else:
-
-                     st.error(f"Backend Error: {response.status_code}")
-                     st.code(response.text)
+                        st.error(response.text)
 
                 except Exception as e:
+                    st.error(e)
 
-                    st.error(f"Connection Error: {e}")
+
+# -----------------------------
+# Show Questions
+# -----------------------------
+
+if "questions" in st.session_state:
+
+    answers = []
+
+    for i, question in enumerate(st.session_state["questions"], start=1):
+
+        st.subheader(f"Question {i}")
+
+        st.info(question)
+
+        answer = st.text_area(
+            f"Your Answer {i}",
+            key=f"answer_{i}",
+            height=120
+        )
+
+        answers.append(answer)
+
+    if st.button(
+        "📝 Evaluate My Interview",
+        key="evaluate_btn"
+    ):
+
+        try:
+
+            response = requests.post(
+                "http://127.0.0.1:8000/evaluate-interview",
+                json={
+                    "language": language,
+                    "code": code,
+                    "questions": st.session_state["questions"],
+                    "answers": answers
+                }
+            )
+
+            if response.status_code == 200:
+
+                evaluation = response.json()
+
+                st.success("Interview Evaluated!")
+
+                st.metric(
+                    "Overall Score",
+                    f"{evaluation['overall_score']}/10"
+                )
+
+                st.progress(evaluation["overall_score"] / 10)
+
+                col1, col2, col3 = st.columns(3)
+
+                col1.metric(
+                    "Communication",
+                    evaluation["communication"]
+                )
+
+                col2.metric(
+                    "Technical Accuracy",
+                    evaluation["technical_accuracy"]
+                )
+
+                col3.metric(
+                    "Problem Solving",
+                    evaluation["problem_solving"]
+                )
+
+                st.subheader("Feedback")
+
+                for item in evaluation["feedback"]:
+                    st.success(item)
+
+                st.subheader("Recommendation")
+
+                st.info(evaluation["recommendation"])
+
+            else:
+
+                st.error(response.text)
+
+        except Exception as e:
+
+            st.error(e)
 
     if st.button("🗑 Clear History"):
         with open("history.json", "w") as f:
@@ -132,7 +210,7 @@ elif page == "🎤 Interview Coach":
 # ---------------------------------
 elif page == "ℹ About":
     st.title("ℹ About")
-    st.write("What's My Level? v1.1.0")
+    st.write(f"What's My Level? {APP_VERSION}")
     st.markdown("""
 An AI-powered coding assessment platform that analyzes your code,
 estimates your skill level, and provides personalized interview
