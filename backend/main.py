@@ -4,6 +4,19 @@ from backend.models import CodeRequest
 from backend.gemini import analyze_code
 from backend.history import save_history
 from backend.gemini import analyze_code, generate_interview_questions
+from backend.gemini import (
+    analyze_code,
+    generate_interview_questions,
+    evaluate_interview_answers
+)
+from pydantic import BaseModel
+
+class InterviewRequest(BaseModel):
+    language: str
+    code: str
+    questions: list[str]
+    answers: list[str]
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -63,4 +76,13 @@ def interview(request: CodeRequest):
     return generate_interview_questions(
         request.language,
         request.code
+    )
+@app.post("/evaluate-interview")
+def evaluate_interview(request: InterviewRequest):
+
+    return evaluate_interview_answers(
+        request.language,
+        request.code,
+        request.questions,
+        request.answers
     )

@@ -154,3 +154,71 @@ Code:
      print(repr(e))
      print("=====================================\n")
      raise
+def evaluate_interview_answers(language, code, questions, answers):
+
+    prompt = f"""
+You are a Senior Software Engineer conducting a coding interview.
+
+Evaluate the candidate's answers.
+
+Programming Language:
+{language}
+
+Code:
+{code}
+
+Questions:
+{questions}
+
+Candidate Answers:
+{answers}
+
+Return ONLY valid JSON.
+
+{{
+    "overall_score": 0,
+    "communication": 0,
+    "technical_accuracy": 0,
+    "problem_solving": 0,
+    "feedback": [
+        "",
+        "",
+        ""
+    ],
+    "recommendation": ""
+}}
+
+Rules:
+
+overall_score : 0-10
+
+communication : 0-10
+
+technical_accuracy : 0-10
+
+problem_solving : 0-10
+
+feedback:
+Maximum 3 short bullet points.
+
+recommendation:
+Either
+
+Interview Ready
+
+or
+
+Needs More Practice
+
+Return JSON only.
+"""
+
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
+    text = response.text.strip()
+    text = text.replace("```json", "").replace("```", "").strip()
+
+    return json.loads(text)
