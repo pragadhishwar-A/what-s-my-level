@@ -230,18 +230,22 @@ You are a Senior Software Engineer.
 Review the following {language} code line by line.
 
 Return ONLY valid JSON.
-Return the exact code on the reviewed line in the "code" field.
+
 Schema:
 
-{
-  "line": 1,
-  "code": "",
-  "severity": "",
-  "issue": "",
-  "suggestion": ""
-}
+{{
+  "line_reviews": [
+    {{
+      "line": 1,
+      "code": "",
+      "severity": "",
+      "issue": "",
+      "suggestion": ""
+    }}
+  ]
+}}
 Rules:
-
+Return the exact code on the reviewed line in the "code" field.
 Severity must be:
 
 Low
