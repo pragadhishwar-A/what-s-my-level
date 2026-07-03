@@ -150,10 +150,10 @@ Code:
         return json.loads(text)
 
     except Exception as e:
-     print("\n========== INTERVIEW ERROR ==========")
-     print(repr(e))
-     print("=====================================\n")
-     raise
+        logger.error(f"Interview Error: {e}")
+        raise
+
+
 def evaluate_interview_answers(language, code, questions, answers):
 
     prompt = f"""
@@ -222,6 +222,8 @@ Return JSON only.
     text = text.replace("```json", "").replace("```", "").strip()
 
     return json.loads(text)
+
+
 def review_code(language, code):
 
     prompt = f"""
@@ -230,8 +232,6 @@ You are a Senior Software Engineer.
 Review the following {language} code line by line.
 
 Return ONLY valid JSON.
-
-Schema:
 
 Schema:
 
