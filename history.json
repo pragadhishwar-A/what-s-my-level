@@ -14,5 +14,21 @@
     "score": 85,
     "time_complexity": "O(1)",
     "space_complexity": "O(1)"
+  },
+  {
+    "timestamp": "2026-07-03 13:41:31",
+    "language": "Python",
+    "level": "Beginner",
+    "score": 75,
+    "time_complexity": "O(1)",
+    "space_complexity": "O(1)"
+  },
+  {
+    "timestamp": "2026-07-03 13:41",
+    "language": "Python",
+    "level": "Beginner",
+    "score": 75,
+    "time_complexity": "O(1)",
+    "space_complexity": "O(1)"
   }
 ]

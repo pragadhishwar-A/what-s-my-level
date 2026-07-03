@@ -3,7 +3,8 @@ import requests
 import json
 import os
 from datetime import datetime
-APP_VERSION = "v1.4.0"
+APP_VERSION="v1.4.0"
+
 # ---------------------------------
 # Page Configuration
 # ---------------------------------
@@ -25,14 +26,15 @@ with st.sidebar:
     st.write(APP_VERSION)
 
     page = st.radio(
-        "Navigation",
-        [
-    "🏠 Home",
-    "📜 Analysis History",
-    "🎤 Interview Coach",
-    "ℹ About"
-]
-    )
+    "Navigation",
+    [
+        "🏠 Home",
+        "📜 Analysis History",
+        "🎤 Interview Coach",
+        "📄 Code Mentor",
+        "ℹ About"
+    ]
+)
 
     st.markdown("### Tech Stack")
     st.markdown("""
@@ -205,6 +207,69 @@ if "questions" in st.session_state:
     else:
         st.info("No history available.")
 
+elif page == "📄 Code Mentor":
+
+        st.title("📄 AI Code Mentor")
+
+        language = st.selectbox(
+            "Programming Language",
+            ["Python", "Java", "C++", "JavaScript"],
+            key="mentor_language"
+        )
+
+        code = st.text_area(
+            "Paste your code",
+            height=300,
+            key="mentor_code"
+        )
+
+        if st.button("🔍 Review My Code"):
+
+            if not code.strip():
+                st.warning("Please paste your code.")
+
+            else:
+
+                with st.spinner("Reviewing code..."):
+
+                    try:
+
+                        response = requests.post(
+                            "http://127.0.0.1:8000/review-code",
+                            json={
+                                "language": language,
+                                "code": code
+                            }
+                        )
+
+                        if response.status_code == 200:
+
+                            result = response.json()
+
+                            st.success("Review Complete!")
+
+                            for review in result["line_reviews"]:
+
+                                severity = review["severity"]
+
+                                if severity == "High":
+                                    st.error(f"🔴 Line {review['line']}")
+                                elif severity == "Medium":
+                                    st.warning(f"🟠 Line {review['line']}")
+                                else:
+                                    st.success(f"🟢 Line {review['line']}")
+
+                                st.code(review["code"], language.lower())
+
+                                st.write(f"**Issue:** {review['issue']}")
+                                st.write(f"**Suggestion:** {review['suggestion']}")
+
+                        else:
+                            st.error(response.text)
+
+                    except Exception as e:
+                        st.error(e)
+
 # ---------------------------------
 # About Page
 # ---------------------------------
@@ -344,6 +409,7 @@ complexity analysis, and interview questions.
 
             except Exception as e:
                 st.error(f"❌ Connection Error: {e}")
+                st.stop()
 
 # ---------------------------------
 # Footer
