@@ -222,3 +222,53 @@ Return JSON only.
     text = text.replace("```json", "").replace("```", "").strip()
 
     return json.loads(text)
+def review_code(language, code):
+
+    prompt = f"""
+You are a Senior Software Engineer.
+
+Review the following {language} code line by line.
+
+Return ONLY valid JSON.
+
+Schema:
+
+{{
+  "line_reviews":[
+    {{
+      "line":1,
+      "severity":"",
+      "issue":"",
+      "suggestion":""
+    }}
+  ]
+}}
+
+Rules:
+
+Severity must be:
+
+Low
+Medium
+High
+
+Review at most 5 important lines.
+
+Each issue must be one sentence.
+
+Each suggestion must be one sentence.
+
+Code:
+
+{code}
+"""
+
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
+    text = response.text.strip()
+    text = text.replace("```json", "").replace("```", "").strip()
+
+    return json.loads(text)
