@@ -257,15 +257,33 @@ elif page == "📄 Code Mentor":
                             st.divider()
 
                             st.success("Review Complete!")
+                            result = response.json()
 
+                            st.success("Review Complete!")
+
+                            high = sum(r["severity"] == "High" for r in result["line_reviews"])
+                            medium = sum(r["severity"] == "Medium" for r in result["line_reviews"])
+                            low = sum(r["severity"] == "Low" for r in result["line_reviews"])
+
+                            col1, col2, col3 = st.columns(3)
+
+                            col1.metric("🔴 High", high)
+                            col2.metric("🟠 Medium", medium)
+                            col3.metric("🟢 Low", low)
+
+                            st.divider()
+
+                            # Existing loop starts here
                             for review in result["line_reviews"]:
 
                                 severity = review["severity"]
 
                                 if severity == "High":
                                     st.error(f"🔴 Line {review['line']}")
+
                                 elif severity == "Medium":
                                     st.warning(f"🟠 Line {review['line']}")
+
                                 else:
                                     st.success(f"🟢 Line {review['line']}")
 
@@ -273,6 +291,31 @@ elif page == "📄 Code Mentor":
 
                                 st.write(f"**Issue:** {review['issue']}")
                                 st.write(f"**Suggestion:** {review['suggestion']}")
+
+                                st.divider()
+
+                            for review in result["line_reviews"]:
+
+                                severity = review["severity"]
+
+                                if severity == "High":
+                                    icon = "🔴"
+
+                                elif severity == "Medium":
+                                    icon = "🟠"
+
+                                else:
+                                    icon = "🟢"
+
+                                with st.expander(f"{icon} Line {review['line']} ({severity})", expanded=False):
+
+                                    st.code(review["code"], language.lower())
+
+                                    st.subheader("Issue")
+                                    st.write(review["issue"])
+
+                                    st.subheader("Suggestion")
+                                    st.success(review["suggestion"])
 
                         else:
                             st.error(response.text)
