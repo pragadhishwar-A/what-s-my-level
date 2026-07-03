@@ -245,6 +245,16 @@ elif page == "📄 Code Mentor":
                         if response.status_code == 200:
 
                             result = response.json()
+                            st.metric(
+                                "⭐ Overall Code Quality",
+                                f"{result['overall_score']}/100"
+                            )
+
+                            st.progress(result["overall_score"] / 100)
+
+                            st.info(result["summary"])
+
+                            st.divider()
 
                             st.success("Review Complete!")
 

@@ -233,12 +233,16 @@ Return ONLY valid JSON.
 
 Schema:
 
+Schema:
+
 {{
+  "overall_score": 0,
+  "summary": "",
   "line_reviews": [
     {{
       "line": 1,
-      "code": "",
-      "severity": "",
+      "code": "x = 10",
+      "severity": "Low",
       "issue": "",
       "suggestion": ""
     }}
@@ -257,7 +261,10 @@ Review at most 5 important lines.
 Each issue must be one sentence.
 
 Each suggestion must be one sentence.
-
+overall_score:
+0-100
+summary:
+Maximum 2 sentences.
 Code:
 
 {code}
