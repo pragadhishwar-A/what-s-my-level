@@ -1,4 +1,5 @@
 import logging
+from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 from backend.models import CodeRequest
 from backend.gemini import analyze_code
@@ -9,13 +10,11 @@ from backend.gemini import (
     generate_interview_questions,
     evaluate_interview_answers
 )
-from pydantic import BaseModel
-
-class InterviewRequest(BaseModel):
+from backend.gemini import review_code
+class ReviewRequest(BaseModel):
     language: str
     code: str
-    questions: list[str]
-    answers: list[str]
+APP_VERSION = "v1.4.0"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -77,12 +76,10 @@ def interview(request: CodeRequest):
         request.language,
         request.code
     )
-@app.post("/evaluate-interview")
-def evaluate_interview(request: InterviewRequest):
+@app.post("/review-code")
+def review(request: ReviewRequest):
 
-    return evaluate_interview_answers(
+    return review_code(
         request.language,
-        request.code,
-        request.questions,
-        request.answers
+        request.code
     )
